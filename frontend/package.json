@@ -1,0 +1,46 @@
+{
+  "name": "dwarf",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
+    "@material-ui/lab": "^4.0.0-alpha.35",
+    "@material-ui/styles": "latest",
+    "axios": "latest",
+    "classnames": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "next": "latest",
+    "next-offline": "latest",
+    "next-manifest": "latest",
+    "next-compose-plugins": "latest",
+    "notistack": "latest"
+  },
+  "devDependencies": {
+    "sharp": "latest",
+    "svg.js": "latest",
+    "svgdom": "latest"
+  },  
+  "scripts": {
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
+

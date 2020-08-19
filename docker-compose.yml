@@ -1,0 +1,108 @@
+---
+version: "3.7"
+services:
+  # dev_redis:
+  #   image: redis:5.0.7
+  #   expose:
+  #     - "6379"
+  #   command: /usr/local/etc/redis/redis.conf
+  #   volumes:
+  #     - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+  dev_migration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev_backend_core
+    tty: true
+    command: migrate --noinput
+    volumes:
+      - ./backend:/opt/app
+      - ./config/settings.dev.py:/opt/app/backend/settings.py
+  dev_backend_core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev_backend_core
+    tty: true
+    expose:
+      - "8000"
+    volumes:
+      - ./backend:/opt/app
+      - ./config/settings.dev.py:/opt/app/backend/settings.py
+    depends_on:
+      - dev_migration
+  #   links:
+  #     - dev_redis
+  # dev_backend_channels_worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: dev_backend_core
+  #   tty: true
+  #   command: runworker song_update_default
+  #   volumes: 
+  #     - ./backend:/opt/app
+  #     - ./config/settings.dev.py:/opt/app/backend/settings.py
+  #   depends_on:
+  #     - dev_backend_core
+  #   links:
+  #     - dev_redis
+  # dev_backend_celery_worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: dev_backend_celery_worker
+  #   tty: true
+  #   volumes:
+  #     - ./backend:/opt/app
+  #     - ./config/settings.dev.py:/opt/app/backend/settings.py
+  #   links:
+  #     - dev_redis
+  #     - dev_backend_core
+  # dev_backend_celery_beat:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: dev_backend_celery_beat
+  #   tty: true
+  #   volumes:
+  #     - ./backend:/opt/app
+  #     - ./config/settings.dev.py:/opt/app/backend/settings.py
+  #   links:
+  #     - dev_redis
+  #     - dev_backend_core
+  dev_frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev_frontend
+    tty: true
+    expose:
+      - "3000"
+    volumes:
+      - ./frontend/components:/opt/app/components
+      - ./frontend/hidden_pages:/opt/app/hidden_pages
+      - ./frontend/lib:/opt/app/lib
+      - ./frontend/pages:/opt/app/pages
+      - ./frontend/public:/opt/app/public
+      - ./frontend/next.config.js:/opt/app/next.config.js
+      - ./frontend/server.js:/opt/app/server.js
+      - ./frontend/test.js:/opt/app/test.js
+  dev_web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev_web
+    expose:
+      - "80"
+      - "443"
+    ports:
+      - "${STB_HTTP:-80}:80"
+      - "${STB_HTTPS:-444}:443"
+    volumes:
+      - ./config/nginx.dev.conf:/etc/nginx/conf.d/default.conf
+      - ./config/ssl/localhost.crt:/etc/nginx/cert.pem
+      - ./config/ssl/localhost.key:/etc/nginx/key.pem
+    links:
+      - dev_backend_core
+      - dev_frontend

@@ -1,0 +1,53 @@
+### BACKEND
+FROM python:3.7 AS backend
+WORKDIR /opt/app
+
+ARG UNAME=user
+ARG UID=6275
+ARG GID=6275
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN chown $UID:$GID -R .
+USER $UNAME
+COPY backend/manage.py manage.py
+COPY backend/backend backend
+COPY backend/general general
+COPY config/settings.prod.py backend/settings.py
+
+
+FROM backend AS backend_core
+RUN python manage.py collectstatic --clear --noinput
+EXPOSE 8000
+ENTRYPOINT []
+CMD ["daphne", "--proxy-headers", "-b", "0.0.0.0", "-p", "8000", "--access-log", "-", "backend.asgi:application"]
+
+
+FROM backend AS backend_celery_beat
+ENTRYPOINT ["celery", "beat", "-A", "backend"]
+CMD ["-l", "info"]
+
+
+FROM backend AS backend_celery_worker
+ENTRYPOINT ["celery", "worker", "-A", "backend"]
+CMD ["-l", "info"]
+
+
+### COMPILE FRONTEND
+FROM node:14.8 AS frontend
+WORKDIR /opt/app
+COPY frontend/package.json package.json
+RUN npm install
+COPY frontend/ /opt/app
+RUN npm run build
+ENTRYPOINT ["npm", "run"]
+CMD ["start"]
+
+
+### WEBSERVER
+FROM nginx:1.17 AS web
+WORKDIR /opt/app
+COPY --from=backend_core /opt/app/static/ api_static/
