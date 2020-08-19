@@ -5,13 +5,18 @@ import {FancyAppBar} from '../components/app_bar'
 import {useComplexState} from '../components/complex_state'
 import Config from '../lib/config';
 import API from '../lib/api';
-
+import { register, unregister } from 'next-offline/runtime'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
-// TODO: eslint
-// TODO: persistant theia conf
-// TODO: move requirements.txt and/or Pipfile to backend
+// TODO: eslint printet keine Fehlermeldungen
+
+// TODO: Testen ob ich das dev_ präfix in den Containern weglassen kann
+// TODO: Fix: Content Security Policy: Die Einstellungen der Seite haben das Laden einer Ressource auf https://4.dev.farene.de/service-worker.js festgestellt ("worker-src"). Ein CSP-Bericht wird gesendet.
+//    - Evtl. habe ich das schon gefixt
+// TODO: NPM Container sauberer bauen
+//    - So, dass nicht 20 Volumes gebraucht werden
+//    - Und package-lock.json sinnvoll verwendet wird
 // TODO: Beispielseiten schreiben
 //    - Casual API requests + Database
 //    -   Evtl ein kleines Tagebuchbeispiel
@@ -23,7 +28,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 //      - Share Actions
 //      - Shortcuts
 //    - About Page
-//    - Sidebar ordentlich fancy machen (mit Kategorien undso)
+//    - Sidebar fancy machen (mit Baumstruktur)
 
 // TODO: Anpassungen um einfacher rebasen zu können
 //    - Beispielconfigs erstellen, .gitignore anpassen
@@ -31,6 +36,8 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 //    - build_example_project.sh (Baut alles um die Beispielseite starten zu können)
 
 // TODO: Doku schreiben (Die Hauptquelle für die Funktionsweise sollen aber die Beispielseiten sein)
+//    - Update piplock: auf backend_core schalten: pipenv lock
+//    - Update npm lock: auf frontend schalten: npm outdated
 // TODO: Zusätzliche Beispielseiten
 //    - Diagramme
 //    - QR Code scannen
@@ -94,7 +101,21 @@ function MainL2(props) {
     setThemeMode: props.setThemeMode,
   });
 
-  React.useEffect(refreshLoginData, []);
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      register()
+    } else {
+      unregister()
+
+      caches.keys().then(cacheNames => {
+        cacheNames.forEach(cacheName => {
+          caches.delete(cacheName);
+        });
+      });
+    }
+
+    refreshLoginData()
+  }, []);
   React.useEffect(() => setDwarfData({...dwarfData,
     themeMode: props.themeMode,
     setThemeMode: props.setThemeMode

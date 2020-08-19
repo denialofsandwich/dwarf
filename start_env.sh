@@ -8,6 +8,7 @@ docker run -d \
     -p 3333:3000 \
     --user ${env_UID}:${env_GID} \
     -v "${PWD}:/home/project:cached"\
+    -v "/root/.theia:/home/theia/.theia"\
     --rm \
     theiaide/theia:next
 

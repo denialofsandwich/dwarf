@@ -80,6 +80,9 @@ services:
     expose:
       - "3000"
     volumes:
+      - ./frontend/package.json:/opt/app/package.json
+      # - ./frontend/package-lock.json:/opt/app/package-lock.json
+      - ./frontend/.eslintrc.json:/opt/app/.eslintrc.json
       - ./frontend/components:/opt/app/components
       - ./frontend/hidden_pages:/opt/app/hidden_pages
       - ./frontend/lib:/opt/app/lib
@@ -87,7 +90,6 @@ services:
       - ./frontend/public:/opt/app/public
       - ./frontend/next.config.js:/opt/app/next.config.js
       - ./frontend/server.js:/opt/app/server.js
-      - ./frontend/test.js:/opt/app/test.js
   dev_web:
     build:
       context: .

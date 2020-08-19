@@ -25,20 +25,39 @@ const manifest = {
 
 const workboxOpts = {
   swDest: 'static/service-worker.js', // DONT CHANGE
-
   // Define runtime caching rules.
   runtimeCaching: [
     {
-      urlPattern: /^https?:\/\/[^\/]*\/(?!_api).*/,
-      handler: 'CacheFirst'
+      urlPattern: /^https?:\/\/[^\/]*\/(?!_).*/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'static-cache',
+        expiration: {
+          maxAgeSeconds: 30 * 24 * 60 * 60,
+        },
+      },
+    },
+    {
+      urlPattern: /^https?:\/\/[^\/]*\/(?:_django_static).*/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'static-cache',
+        expiration: {
+          maxAgeSeconds: 7 * 24 * 60 * 60,
+        },
+      },
     },
     {
       urlPattern: /^https?:\/\/[^\/]*\/(?:_api).*/,
       handler: 'NetworkFirst',
       options: {
+        cacheName: 'api-cache',
         cacheableResponse: {
           statuses: [0, 200],
-        }
+        },
+        expiration: {
+          maxAgeSeconds: 3 * 24 * 60 * 60,
+        },
       },
     }
   ]
@@ -55,5 +74,5 @@ const nextConfig = {
 module.exports = withPlugins([
   [withIcons, {iconConfig}],
   [withManifest, {manifest}],
-  [withOffline, {workboxOpts}],
+  [withOffline, {workboxOpts, dontAutoRegisterSw: true}],
 ], nextConfig);

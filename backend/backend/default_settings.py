@@ -117,7 +117,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_ROOT = './static'
-STATIC_URL = '/_api/static/'
+STATIC_URL = '/_django_static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

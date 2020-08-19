@@ -12,7 +12,7 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <meta charSet="utf-8" />
-          <meta http-equiv="Content-Security-Policy" content="worker-src 'self'"></meta>
+          <meta httpEquiv="Content-Security-Policy" content="worker-src 'self'"></meta>
           <link rel="manifest" href="/manifest.json"></link>
           <meta name="theme-color" content={process.env.themeColor} />
           <meta name="description" content={process.env.description}></meta>

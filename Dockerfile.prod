@@ -1,5 +1,5 @@
 ### BACKEND
-FROM python:3.7 AS backend
+FROM python:3.8 AS backend
 WORKDIR /opt/app
 
 ARG UNAME=user
@@ -8,7 +8,10 @@ ARG GID=6275
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
-COPY requirements.txt requirements.txt
+RUN pip install pipenv
+COPY backend/Pipfile.lock Pipfile.lock
+COPY backend/Pipfile Pipfile
+RUN pipenv lock --requirements > requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN chown $UID:$GID -R .
@@ -40,6 +43,7 @@ CMD ["-l", "info"]
 FROM node:14.8 AS frontend
 WORKDIR /opt/app
 COPY frontend/package.json package.json
+# COPY frontend/package-lock.json package-lock.json
 RUN npm install
 COPY frontend/ /opt/app
 RUN npm run build
